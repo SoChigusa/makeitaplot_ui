@@ -33,8 +33,6 @@ export default function Home() {
     const newBlob = (await response.json()) as PutBlobResult;
     setBlob(newBlob);
 
-    console.log(`https://makeitaplot-api.vercel.app/plot?url=${newBlob.downloadUrl}`);
-
     // Plot
     await fetch(`https://makeitaplot-api.vercel.app/plot?url=${newBlob.downloadUrl}`, {
       method: 'GET'
@@ -61,7 +59,11 @@ export default function Home() {
       <Container>
         <Stack spacing={2}>
           <Box display='flex' justifyContent='center'>
-            <img src={imageUrl} alt='Generated Plot' />
+            {
+              imageUrl == '' ?
+                <img src='sample-plot.png' alt='Sample Plot' /> :
+                <img src={imageUrl} alt='Generated Plot' />
+            }
           </Box>
           <FormControl>
             <Stack spacing={2} direction="row" sx={{ marginX: 'auto' }}>
