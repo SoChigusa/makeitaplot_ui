@@ -6,7 +6,6 @@ import { AppBar, Backdrop, Box, Button, CircularProgress, Container, FormControl
 
 export default function Home() {
   const inputFileRef = useRef<HTMLInputElement>(null);
-  const [blob, setBlob] = useState<PutBlobResult | null>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -15,27 +14,43 @@ export default function Home() {
     event.preventDefault();
 
     // File check
-    if (!inputFileRef.current?.files) {
+    const fileList = inputFileRef.current?.files;
+    if (!fileList) {
       throw new Error('No file selected');
     }
 
-    // File upload
-    const file = inputFileRef.current.files[0];
-    const response = await fetch(
-      `/api/upload?filename=${file.name}`,
-      {
-        method: 'POST',
-        body: file,
-      },
-    );
+    // --------------- source code for vercel blob ---------------
+    // const [blob, setBlob] = useState<PutBlobResult | null>(null);
 
-    // Preserve file info
-    const newBlob = (await response.json()) as PutBlobResult;
-    setBlob(newBlob);
+    // // File upload
+    // const file = inputFileRef.current.files[0];
+    // const response = await fetch(
+    //   `/api/upload?filename=${file.name}`,
+    //   {
+    //     method: 'POST',
+    //     body: file,
+    //   },
+    // );
+
+    // // Preserve file info
+    // const newBlob = (await response.json()) as PutBlobResult;
+    // setBlob(newBlob);
+
+    // // Plot
+    // await fetch('https://makeitaplot-api.vercel.app/plot-vercel-blob?url=${newBlob.downloadUrl}', {
+    //   method: 'GET'
+    // }).then(res => res.blob())
+    //   .then(obj => {
+    //     const url = URL.createObjectURL(obj);
+    //     setImageUrl(url);
+    //   });
 
     // Plot
-    await fetch(`https://makeitaplot-api.vercel.app/plot?url=${newBlob.downloadUrl}`, {
-      method: 'GET'
+    const formData = new FormData();
+    formData.append('plot_data', fileList[0]);
+    await fetch('https://makeitaplot-api.vercel.app/plot', {
+      method: 'POST',
+      body: formData
     }).then(res => res.blob())
       .then(obj => {
         const url = URL.createObjectURL(obj);
