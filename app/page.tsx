@@ -1,13 +1,23 @@
 'use client';
 
 import { useState, useRef, MouseEventHandler } from "react";
-import type { PutBlobResult } from "@vercel/blob";
+// import type { PutBlobResult } from "@vercel/blob";
 import { AppBar, Backdrop, Box, Button, CircularProgress, Container, FormControl, Input, Stack, Toolbar, Typography } from "@mui/material";
+import FigureSettings from "./components/FigureSettings";
+import PlotSettings from "./components/PlotSettings";
+import AxisSettings from "./components/AxisSettings";
+import TicksSettings from "./components/TicksSettings";
+import { Settings } from "./class/settings";
+import Image from "next/image";
 
 export default function Home() {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // settings
+  const defaultSettings = new Settings();
+  const [settings, setSettings] = useState(defaultSettings);
 
   const handleClickPlot: MouseEventHandler<HTMLButtonElement> = async (event) => {
     setLoading(true);
@@ -45,9 +55,15 @@ export default function Home() {
     //     setImageUrl(url);
     //   });
 
-    // Plot
+    // Plot data
     const formData = new FormData();
     formData.append('plot_data', fileList[0]);
+
+    // Settings
+    const blob = new Blob([JSON.stringify(settings)], { type: 'application/json' });
+    formData.append('settings', blob);
+
+    // await fetch('http://localhost:3001/plot', {
     await fetch('https://makeitaplot-api.vercel.app/plot', {
       method: 'POST',
       body: formData
@@ -76,8 +92,8 @@ export default function Home() {
           <Box display='flex' justifyContent='center'>
             {
               imageUrl == '' ?
-                <img src='sample-plot.png' alt='Sample Plot' /> :
-                <img src={imageUrl} alt='Generated Plot' />
+                <Image src='sample-plot.png' alt='Sample Plot' /> :
+                <Image src={imageUrl} alt='Generated Plot' />
             }
           </Box>
           <FormControl>
@@ -96,6 +112,17 @@ export default function Home() {
               </Button>
             </Stack>
           </FormControl>
+          <Box>
+            <FigureSettings fig={settings.fig} />
+            {
+              settings.plots.map((plot, index) => (
+                <PlotSettings key={`plot-settings-${index}`} plot={plot} />
+              ))
+            }
+            <AxisSettings axis={settings.xAxis} />
+            <AxisSettings axis={settings.yAxis} />
+            <TicksSettings ticks={settings.ticks} />
+          </Box>
         </Stack>
         <Backdrop
           sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
