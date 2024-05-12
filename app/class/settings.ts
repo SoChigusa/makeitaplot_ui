@@ -90,7 +90,10 @@ export class Ticks {
   }
 }
 
+export type ImageType = 'png' | 'pdf';
+
 export class Settings {
+  imageType: ImageType;
   fig: Fig;
   plots: Plots;
   xAxis: Axis;
@@ -98,6 +101,7 @@ export class Settings {
   ticks: Ticks;
 
   constructor() {
+    this.imageType = 'png';
     this.fig = new Fig();
     this.plots = new Plots();
     this.xAxis = new Axis('x', 'x-label sample');

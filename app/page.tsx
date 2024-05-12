@@ -2,13 +2,15 @@
 
 import { useState, useRef, MouseEventHandler } from "react";
 // import type { PutBlobResult } from "@vercel/blob";
-import { AppBar, Backdrop, Box, Button, CircularProgress, Container, FormControl, Input, Stack, Toolbar, Typography } from "@mui/material";
+import { AppBar, Backdrop, Box, Button, CircularProgress, Container, FormControl, IconButton, Input, Stack, Toolbar, Typography } from "@mui/material";
 import FigureSettings from "./components/FigureSettings";
 import PlotSettings from "./components/PlotSettings";
 import AxisSettings from "./components/AxisSettings";
 import TicksSettings from "./components/TicksSettings";
 import { Settings } from "./class/settings";
 import Image from "next/image";
+import ImageIcon from '@mui/icons-material/Image';
+import { CoffeeMaker, CoffeeMakerOutlined, PictureAsPdf } from "@mui/icons-material";
 
 export default function Home() {
   const inputFileRef = useRef<HTMLInputElement>(null);
@@ -16,10 +18,19 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   // settings
-  const defaultSettings = new Settings();
-  const [settings, setSettings] = useState(defaultSettings);
+  let settings = new Settings();
 
   const handleClickPlot: MouseEventHandler<HTMLButtonElement> = async (event) => {
+    settings.imageType = 'png';
+    handlePlot(event);
+  };
+
+  const handleClickPDF: MouseEventHandler<HTMLButtonElement> = async (event) => {
+    settings.imageType = 'pdf';
+    handlePlot(event);
+  };
+
+  const handlePlot: MouseEventHandler<HTMLButtonElement> = async (event) => {
     setLoading(true);
     event.preventDefault();
 
@@ -70,7 +81,14 @@ export default function Home() {
     }).then(res => res.blob())
       .then(obj => {
         const url = URL.createObjectURL(obj);
-        setImageUrl(url);
+        if (settings.imageType === 'png') {
+          setImageUrl(url);
+        } else if (settings.imageType === 'pdf') {
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = url.split('/').slice(-1)[0];
+          link.click();
+        }
       });
 
     setLoading(false);
@@ -97,19 +115,35 @@ export default function Home() {
             }
           </Box>
           <FormControl>
-            <Stack spacing={2} direction="row" sx={{ marginX: 'auto' }}>
+            <Stack spacing={1} direction="row" sx={{ marginX: 'auto' }}>
               <Input
                 name="file"
                 inputRef={inputFileRef}
                 type="file"
                 required
               />
-              <Button
-                variant="contained"
+              <IconButton
+                aria-label="Plot"
+                color="primary"
                 onClick={handleClickPlot}
               >
-                Plot
-              </Button>
+                <CoffeeMakerOutlined />
+              </IconButton>
+              <IconButton
+                aria-label="Download png"
+                color="primary"
+                href={imageUrl}
+                download
+              >
+                <ImageIcon />
+              </IconButton>
+              <IconButton
+                aria-label="Generate and download pdf"
+                color="primary"
+                onClick={handleClickPDF}
+              >
+                <PictureAsPdf />
+              </IconButton>
             </Stack>
           </FormControl>
           <Box>
