@@ -28,6 +28,8 @@ const TicksSettings = ({ ticks }: { ticks: Ticks }) => {
         <FormGroup>
           <TextField
             required
+            sx={{ width: 100 }}
+            InputProps={{ inputProps: { min: 1 } }}
             size="small"
             type="number"
             id="ticks-label-size"

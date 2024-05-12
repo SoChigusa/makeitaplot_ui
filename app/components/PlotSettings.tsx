@@ -46,12 +46,12 @@ const PlotSettingsEach = (props: Props) => {
     props.handleChangePlotY(y);
   };
 
-  const onChangePlotColor = (event: SelectChangeEvent) => {
+  const onChangePlotColor: FocusEventHandler<HTMLInputElement> = event => {
     const color = event.target.value as PlotColor;
     props.handleChangePlotColor(color);
   };
 
-  const onChangePlotLineStyle = (event: SelectChangeEvent) => {
+  const onChangePlotLineStyle: FocusEventHandler<HTMLInputElement> = event => {
     const lineStyleSpec = event.target.value as PlotLineStyleSpec;
     const lineStyle = lineStyleList.find(ls => ls.spec === lineStyleSpec);
     if (lineStyle !== undefined) {
@@ -83,7 +83,8 @@ const PlotSettingsEach = (props: Props) => {
       </Typography>
       <TextField
         required
-        sx={{ width: 100 }}
+        sx={{ width: 80 }}
+        InputProps={{ inputProps: { min: 1 } }}
         size="small"
         type="number"
         id="plot-x"
@@ -94,7 +95,8 @@ const PlotSettingsEach = (props: Props) => {
       />
       <TextField
         required
-        sx={{ width: 100 }}
+        sx={{ width: 80 }}
+        InputProps={{ inputProps: { min: 1 } }}
         size="small"
         type="number"
         id="plot-y"
@@ -103,7 +105,8 @@ const PlotSettingsEach = (props: Props) => {
         defaultValue={props.plot.y}
         onBlur={setPlotY}
       />
-      <Select
+      <TextField
+        select
         required
         sx={{ width: 120 }}
         size="small"
@@ -118,10 +121,11 @@ const PlotSettingsEach = (props: Props) => {
             <MenuItem value={c} key={`plot-color-selector-${c}`}>{c}</MenuItem>
           ))
         }
-      </Select>
-      <Select
+      </TextField>
+      <TextField
+        select
         required
-        sx={{ width: 150 }}
+        sx={{ width: 135 }}
         size="small"
         id="plot-line-style"
         label="Line style"
@@ -134,10 +138,11 @@ const PlotSettingsEach = (props: Props) => {
             <MenuItem value={ls.spec} key={`plot-line-style-selector-${ls.label}`}>{ls.label}</MenuItem>
           ))
         }
-      </Select>
+      </TextField>
       <TextField
         required
         sx={{ width: 100 }}
+        InputProps={{ inputProps: { min: 1 } }}
         size="small"
         type="number"
         id="plot-line-width"
@@ -254,7 +259,7 @@ const PlotSettings = ({ plots }: { plots: Plots }) => {
   };
 
   const legendLocationList: PlotLegendLocation[] = ['best', 'upper left', 'upper right', 'lower left', 'lower right'];
-  const onChangeLegendLocation = (event: SelectChangeEvent) => {
+  const onChangeLegendLocation: FocusEventHandler<HTMLInputElement> = event => {
     const legendLocation = event.target.value as PlotLegendLocation;
     plots.legendLocation = legendLocation;
     setSpecLegendLocation(legendLocation);
@@ -331,7 +336,7 @@ const PlotSettings = ({ plots }: { plots: Plots }) => {
               <Stack spacing={1} direction="row">
                 <TextField
                   required
-                  sx={{ width: 100 }}
+                  sx={{ width: 80 }}
                   size="small"
                   type="number"
                   id="plot-legend-size"
@@ -340,7 +345,8 @@ const PlotSettings = ({ plots }: { plots: Plots }) => {
                   defaultValue={plots.legendSize}
                   onBlur={setLegendSize}
                 />
-                <Select
+                <TextField
+                  select
                   required
                   sx={{ width: 150 }}
                   size="small"
@@ -356,7 +362,7 @@ const PlotSettings = ({ plots }: { plots: Plots }) => {
                       <MenuItem value={c} key={`plot-legend-location-selector-${c}`}>{c}</MenuItem>
                     ))
                   }
-                </Select>
+                </TextField>
               </Stack>
             </Stack>
           </Stack>

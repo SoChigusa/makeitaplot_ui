@@ -70,6 +70,7 @@ const FigureSettings = ({ fig }: { fig: Fig }) => {
               />
               <TextField
                 required
+                sx={{ width: 100 }}
                 size="small"
                 id="fig-width"
                 label="Width"
@@ -82,6 +83,7 @@ const FigureSettings = ({ fig }: { fig: Fig }) => {
               </Typography>
               <TextField
                 required
+                sx={{ width: 100 }}
                 size="small"
                 id="fig-height"
                 label="Height"
@@ -104,7 +106,7 @@ const FigureSettings = ({ fig }: { fig: Fig }) => {
               <TextField
                 required
                 size="small"
-                sx={{ width: '360px' }}
+                sx={{ width: 240 }}
                 id="fig-title"
                 label="Plot title"
                 disabled={!specFigTitle}
@@ -113,6 +115,8 @@ const FigureSettings = ({ fig }: { fig: Fig }) => {
               />
               <TextField
                 required
+                sx={{ width: 100 }}
+                InputProps={{ inputProps: { min: 1 } }}
                 size="small"
                 type="number"
                 id="fig-title-size"

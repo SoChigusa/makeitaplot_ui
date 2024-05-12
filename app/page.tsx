@@ -7,7 +7,7 @@ import FigureSettings from "./components/FigureSettings";
 import PlotSettings from "./components/PlotSettings";
 import AxisSettings from "./components/AxisSettings";
 import TicksSettings from "./components/TicksSettings";
-import { Plot, Settings } from "./class/settings";
+import { Settings } from "./class/settings";
 import Image from "next/image";
 
 export default function Home() {

@@ -75,6 +75,7 @@ const AxisSettings = ({ axis }: { axis: Axis }) => {
               />
               <TextField
                 required
+                sx={{ width: 100 }}
                 size="small"
                 id={`${axis.getID()}-axis-lim-lower`}
                 label="Lower limit"
@@ -87,6 +88,7 @@ const AxisSettings = ({ axis }: { axis: Axis }) => {
               </Typography>
               <TextField
                 required
+                sx={{ width: 100 }}
                 size="small"
                 id={`${axis.getID()}-axis-lim-upper`}
                 label="Upper limit"
@@ -105,6 +107,7 @@ const AxisSettings = ({ axis }: { axis: Axis }) => {
             <Stack spacing={2} direction="row" alignItems="center">
               <TextField
                 required
+                sx={{ width: 240 }}
                 size="small"
                 id={`${axis.getID()}-axis-label`}
                 label="Label"
@@ -113,6 +116,8 @@ const AxisSettings = ({ axis }: { axis: Axis }) => {
               />
               <TextField
                 required
+                sx={{ width: 100 }}
+                InputProps={{ inputProps: { min: 1 } }}
                 size="small"
                 type="number"
                 id={`${axis.getID()}-axis-label-size`}
