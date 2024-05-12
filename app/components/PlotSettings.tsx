@@ -1,16 +1,25 @@
-import { ExpandMore } from "@mui/icons-material";
-import { Accordion, AccordionDetails, AccordionSummary, FormGroup, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
+import { Add, ArrowDownward, ArrowUpward, CheckBox, Delete, ExpandMore } from "@mui/icons-material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Checkbox, FormControlLabel, FormGroup, IconButton, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
 import { checkPositiveNumber } from "../utils/alertUtils";
-import { FocusEventHandler, useState } from "react";
-import { Plot } from "../class/settings";
+import { ChangeEvent, FocusEventHandler, MouseEventHandler, useState } from "react";
+import { Plot, PlotColor, PlotLineStyle, PlotLineStyleSpec, Plots } from "../class/settings";
 
-const PlotSettings = ({ plot }: { plot: Plot }) => {
-  const [color, setColor] = useState(plot.color);
-  const [lineStyle, setLineStyle] = useState(plot.lineStyle);
+type Props = {
+  plot: Plot,
+  legendFlag: boolean,
+  handleChangePlotX: (x: number) => void,
+  handleChangePlotY: (y: number) => void,
+  handleChangePlotColor: (color: PlotColor) => void,
+  handleChangePlotLineStyle: (lineStyle: PlotLineStyle) => void,
+  handleChangePlotLineWidth: (lineWidth: number) => void,
+  handleChangePlotLegend: (legend: string) => void,
+};
+
+const PlotSettingsEach = (props: Props) => {
 
   // list of selections
-  const colorList = ['black', 'blue', 'red', 'green', 'orange', 'magenta', 'cyan'];
-  const lineStyleList = [
+  const colorList: PlotColor[] = ['black', 'blue', 'red', 'green', 'orange', 'magenta', 'cyan'];
+  const lineStyleList: PlotLineStyle[] = [
     { spec: '-', label: 'solid' },
     { spec: '--', label: 'dashed' },
     { spec: ':', label: 'dotted' },
@@ -18,40 +27,234 @@ const PlotSettings = ({ plot }: { plot: Plot }) => {
   ];
 
   const setPlotX: FocusEventHandler<HTMLInputElement> = event => {
-    plot.x = checkPositiveNumber({
+    const x: number = checkPositiveNumber({
       event,
       type: 'int',
-      vCurrent: plot.x,
+      vCurrent: props.plot.x,
+      label: 'Plot x'
+    });
+    props.handleChangePlotX(x);
+  };
+
+  const setPlotY: FocusEventHandler<HTMLInputElement> = event => {
+    const y: number = checkPositiveNumber({
+      event,
+      type: 'int',
+      vCurrent: props.plot.y,
+      label: 'Plot y'
+    });
+    props.handleChangePlotY(y);
+  };
+
+  const onChangePlotColor = (event: SelectChangeEvent) => {
+    const color = event.target.value as PlotColor;
+    props.handleChangePlotColor(color);
+  };
+
+  const onChangePlotLineStyle = (event: SelectChangeEvent) => {
+    const lineStyleSpec = event.target.value as PlotLineStyleSpec;
+    const lineStyle = lineStyleList.find(ls => ls.spec === lineStyleSpec);
+    if (lineStyle !== undefined) {
+      props.handleChangePlotLineStyle(lineStyle);
+    } else {
+      console.log(`Undefined line style spectator ${lineStyleSpec} detected.`);
+    }
+  };
+
+  const setPlotLineWidth: FocusEventHandler<HTMLInputElement> = event => {
+    const lineWidth: number = checkPositiveNumber({
+      event,
+      type: 'int',
+      vCurrent: props.plot.lineWidth,
+      label: 'Line width'
+    });
+    props.handleChangePlotLineWidth(lineWidth);
+  };
+
+  const setPlotLegend: FocusEventHandler<HTMLInputElement> = event => {
+    const legend: string = event.currentTarget.value;
+    props.handleChangePlotLegend(legend);
+  };
+
+  return (
+    <Stack spacing={1} direction="row" alignItems="center">
+      <Typography variant="body1">
+        Data columns
+      </Typography>
+      <TextField
+        required
+        sx={{ width: 100 }}
+        size="small"
+        type="number"
+        id="plot-x"
+        label="x"
+        key={`plot-x-${props.plot.id}`}
+        defaultValue={props.plot.x}
+        onBlur={setPlotX}
+      />
+      <TextField
+        required
+        sx={{ width: 100 }}
+        size="small"
+        type="number"
+        id="plot-y"
+        label="y"
+        key={`plot-y-${props.plot.id}`}
+        defaultValue={props.plot.y}
+        onBlur={setPlotY}
+      />
+      <Select
+        required
+        sx={{ width: 120 }}
+        size="small"
+        id="plot-color"
+        label="Color"
+        key={`plot-color-${props.plot.id}`}
+        value={props.plot.color}
+        onChange={onChangePlotColor}
+      >
+        {
+          colorList.map((c: PlotColor) => (
+            <MenuItem value={c} key={`plot-color-selector-${c}`}>{c}</MenuItem>
+          ))
+        }
+      </Select>
+      <Select
+        required
+        sx={{ width: 150 }}
+        size="small"
+        id="plot-line-style"
+        label="Line style"
+        key={`plot-line-style-${props.plot.id}`}
+        value={props.plot.lineStyle.spec}
+        onChange={onChangePlotLineStyle}
+      >
+        {
+          lineStyleList.map(ls => (
+            <MenuItem value={ls.spec} key={`plot-line-style-selector-${ls.label}`}>{ls.label}</MenuItem>
+          ))
+        }
+      </Select>
+      <TextField
+        required
+        sx={{ width: 100 }}
+        size="small"
+        type="number"
+        id="plot-line-width"
+        label="Line width"
+        key={`plot-line-width-${props.plot.id}`}
+        defaultValue={props.plot.lineWidth}
+        onBlur={setPlotLineWidth}
+      />
+      <TextField
+        sx={{ width: 180 }}
+        size="small"
+        id="plot-legend"
+        label="Legend"
+        key={`plot-legend-${props.plot.id}`}
+        disabled={!props.legendFlag}
+        defaultValue={props.plot.legend}
+        onBlur={setPlotLegend}
+      />
+    </Stack>
+  );
+};
+
+const PlotSettings = ({ plots }: { plots: Plots }) => {
+  const [specPlotList, setSpecPlotList] = useState(plots.plotList);
+  const [specLegendFlag, setSpecLegendFlag] = useState(plots.legendFlag);
+
+  // overall plot operations
+  const add = () => {
+    const plot = new Plot();
+    const updatedPlotList = [...specPlotList];
+    updatedPlotList.push(plot);
+    plots.plotList = updatedPlotList;
+    setSpecPlotList(updatedPlotList);
+  };
+
+  const moveUpward = (index: number) => {
+    const updatedPlotList = [...specPlotList];
+    [updatedPlotList[index], updatedPlotList[index - 1]] = [updatedPlotList[index - 1], updatedPlotList[index]];
+    plots.plotList = updatedPlotList;
+    setSpecPlotList(updatedPlotList);
+  };
+
+  const moveDownward = (index: number) => {
+    const updatedPlotList = [...specPlotList];
+    [updatedPlotList[index], updatedPlotList[index + 1]] = [updatedPlotList[index + 1], updatedPlotList[index]];
+    plots.plotList = updatedPlotList;
+    setSpecPlotList(updatedPlotList);
+  };
+
+  const deletePlot = (index: number) => {
+    const updatedPlotList = [...specPlotList];
+    updatedPlotList.splice(index, 1);
+    plots.plotList = updatedPlotList;
+    setSpecPlotList(updatedPlotList);
+  };
+
+  // each plot operations
+  const onChangePlotX = (index: number, x: number) => {
+    const updatedPlotList = [...specPlotList];
+    updatedPlotList[index].x = x;
+    plots.plotList = updatedPlotList;
+    setSpecPlotList(updatedPlotList);
+  };
+
+  const onChangePlotY = (index: number, y: number) => {
+    const updatedPlotList = [...specPlotList];
+    updatedPlotList[index].y = y;
+    plots.plotList = updatedPlotList;
+    setSpecPlotList(updatedPlotList);
+  };
+
+  const onChangePlotColor = (index: number, color: PlotColor) => {
+    const updatedPlotList = [...specPlotList];
+    updatedPlotList[index].color = color;
+    plots.plotList = updatedPlotList;
+    setSpecPlotList(updatedPlotList);
+  };
+
+  const onChangePlotLineStyle = (index: number, lineStyle: PlotLineStyle) => {
+    const updatedPlotList = [...specPlotList];
+    updatedPlotList[index].lineStyle = lineStyle;
+    plots.plotList = updatedPlotList;
+    setSpecPlotList(updatedPlotList);
+  };
+
+  const onChangePlotLineWidth = (index: number, lineWidth: number) => {
+    const updatedPlotList = [...specPlotList];
+    updatedPlotList[index].lineWidth = lineWidth;
+    plots.plotList = updatedPlotList;
+    setSpecPlotList(updatedPlotList);
+  };
+
+  const onChangePlotLegend = (index: number, legend: string) => {
+    const updatedPlotList = [...specPlotList];
+    updatedPlotList[index].legend = legend;
+    plots.plotList = updatedPlotList;
+    setSpecPlotList(updatedPlotList);
+  };
+
+  // legend settings
+  const onChangeLegend = (event: ChangeEvent<HTMLInputElement>) => {
+    plots.legendFlag = event.target.checked;
+    setSpecLegendFlag(event.target.checked);
+  };
+
+  const setLegendSize: FocusEventHandler<HTMLInputElement> = event => {
+    plots.legendSize = checkPositiveNumber({
+      event,
+      type: 'int',
+      vCurrent: plots.legendSize,
       label: 'Plot x'
     });
   };
 
-  const setPlotY: FocusEventHandler<HTMLInputElement> = event => {
-    plot.y = checkPositiveNumber({
-      event,
-      type: 'int',
-      vCurrent: plot.y,
-      label: 'Plot y'
-    });
-  };
-
-  const onChangePlotColor = (event: SelectChangeEvent) => {
-    setColor(event.target.value);
-    plot.color = event.target.value;
-  };
-
-  const onChangePlotLineStyle = (event: SelectChangeEvent) => {
-    setLineStyle(event.target.value);
-    plot.lineStyle = event.target.value;
-  };
-
-  const setPlotLineWidth: FocusEventHandler<HTMLInputElement> = event => {
-    plot.lineWidth = checkPositiveNumber({
-      event,
-      type: 'int',
-      vCurrent: plot.lineWidth,
-      label: 'Line width'
-    });
+  const legendLocationList = ['best', 'upper left', 'upper right', 'lower left', 'lower right'];
+  const onChangeLegendLocation = (event: SelectChangeEvent) => {
+    plots.legendLocation = event.target.value;
   };
 
   return (
@@ -66,71 +269,97 @@ const PlotSettings = ({ plot }: { plot: Plot }) => {
       <AccordionDetails>
         <FormGroup>
           <Stack spacing={2}>
-            <Stack spacing={1} direction="row" alignItems="center">
-              <Typography variant="body1">
-                Data columns
-              </Typography>
-              <TextField
-                required
-                size="small"
-                type="number"
-                id="plot-x"
-                label="x"
-                defaultValue={plot.x}
-                onBlur={setPlotX}
-              />
-              <TextField
-                required
-                size="small"
-                type="number"
-                id="plot-y"
-                label="y"
-                defaultValue={plot.y}
-                onBlur={setPlotY}
-              />
-              <Select
-                required
-                size="small"
-                id="plot-color"
-                label="Color"
-                value={color}
-                onChange={onChangePlotColor}
+            <Box>
+              <IconButton
+                aria-label="Add plot"
+                onClick={() => { add(); }}
               >
-                {
-                  colorList.map((c: string) => (
-                    <MenuItem value={c} key={`plot-color-selector-${c}`}>{c}</MenuItem>
-                  ))
-                }
-              </Select>
-              <Select
-                required
-                size="small"
-                id="plot-line-style"
-                label="Line style"
-                value={lineStyle}
-                onChange={onChangePlotLineStyle}
-              >
-                {
-                  lineStyleList.map(ls => (
-                    <MenuItem value={ls.spec} key={`plot-line-style-selector-${ls.label}`}>{ls.label}</MenuItem>
-                  ))
-                }
-              </Select>
-              <TextField
-                required
-                size="small"
-                type="number"
-                id="plot-line-width"
-                label="Line width"
-                defaultValue={plot.lineWidth}
-                onBlur={setPlotLineWidth}
+                <Add />
+              </IconButton>
+            </Box>
+            {
+              specPlotList.map((plot, index) => (
+                <Stack key={`plot-settings-${index}`} spacing={1} direction="row">
+                  <PlotSettingsEach
+                    key={`plot-settings-${plot.id}`}
+                    plot={plot}
+                    legendFlag={plots.legendFlag}
+                    handleChangePlotX={(x: number) => onChangePlotX(index, x)}
+                    handleChangePlotY={(y: number) => onChangePlotY(index, y)}
+                    handleChangePlotColor={(color: PlotColor) => onChangePlotColor(index, color)}
+                    handleChangePlotLineStyle={(lineStyle: PlotLineStyle) => onChangePlotLineStyle(index, lineStyle)}
+                    handleChangePlotLineWidth={(lineWidth: number) => onChangePlotLineWidth(index, lineWidth)}
+                    handleChangePlotLegend={(legend: string) => onChangePlotLegend(index, legend)}
+                  />
+                  <Stack spacing={0} direction="row">
+                    <IconButton
+                      aria-label="Move upward"
+                      disabled={index == 0}
+                      onClick={() => { moveUpward(index); }}
+                    >
+                      <ArrowUpward />
+                    </IconButton>
+                    <IconButton
+                      aria-label="Move downward"
+                      disabled={index == specPlotList.length - 1}
+                      onClick={() => { moveDownward(index); }}
+                    >
+                      <ArrowDownward />
+                    </IconButton>
+                    <IconButton
+                      aria-label="Delete"
+                      disabled={specPlotList.length == 1}
+                      onClick={() => { deletePlot(index); }}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </Stack>
+                </Stack>
+              ))
+            }
+            <Stack spacing={3} direction="row">
+              <FormControlLabel
+                control={<Checkbox
+                  checked={specLegendFlag}
+                  onChange={onChangeLegend}
+                />}
+                label="Show legend"
               />
+              <Stack spacing={1} direction="row">
+                <TextField
+                  required
+                  sx={{ width: 100 }}
+                  size="small"
+                  type="number"
+                  id="plot-legend-size"
+                  label="Size"
+                  disabled={!plots.legendFlag}
+                  defaultValue={plots.legendSize}
+                  onBlur={setLegendSize}
+                />
+                <Select
+                  required
+                  sx={{ width: 150 }}
+                  size="small"
+                  id="plot-legend-location"
+                  label="Location"
+                  disabled={!plots.legendFlag}
+                  value={plots.legendLocation}
+                  onChange={onChangeLegendLocation}
+                >
+                  {
+                    legendLocationList.map((c: string) => (
+                      <MenuItem value={c} key={`plot-legend-location-selector-${c}`}>{c}</MenuItem>
+                    ))
+                  }
+                </Select>
+              </Stack>
             </Stack>
           </Stack>
         </FormGroup>
       </AccordionDetails>
     </Accordion>
   );
-};
+}
 
 export default PlotSettings;

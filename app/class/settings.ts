@@ -7,26 +7,54 @@ export class Fig {
 
   constructor() {
     this.sizeSpecify = true;
-    this.size = [8, 6];
+    this.size = [6, 4.5];
     this.titleSpecify = true;
     this.title = 'Plot Title';
     this.titleSize = 20;
   }
 }
 
+export type PlotColor = ('black' | 'blue' | 'red' | 'green' | 'orange' | 'magenta' | 'cyan');
+export type PlotLineStyle = (
+  { spec: '-', label: 'solid' } |
+  { spec: '--', label: 'dashed' } |
+  { spec: ':', label: 'dotted' } |
+  { spec: '-.', label: 'dash-dotted' }
+);
+export type PlotLineStyleSpec = ('-' | '--' | ':' | '-.');
+
 export class Plot {
+  id: string;
   x: number;
   y: number;
-  color: string;
-  lineStyle: string;
+  color: PlotColor;
+  lineStyle: PlotLineStyle;
   lineWidth: number;
+  legend: string;
 
   constructor() {
+    const S = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    this.id = Array.from(Array(16)).map(() => S[Math.floor(Math.random() * S.length)]).join('');
     this.x = 1;
     this.y = 2;
     this.color = 'black';
-    this.lineStyle = '-';
+    this.lineStyle = { spec: '-', label: 'solid' };
     this.lineWidth = 2;
+    this.legend = '';
+  }
+}
+
+export class Plots {
+  plotList: Array<Plot>;
+  legendFlag: boolean;
+  legendSize: number;
+  legendLocation: string;
+
+  constructor() {
+    this.plotList = [new Plot()];
+    this.legendFlag = false;
+    this.legendSize = 15;
+    this.legendLocation = 'best';
   }
 }
 
@@ -62,54 +90,16 @@ export class Ticks {
 
 export class Settings {
   fig: Fig;
-  plots: Array<Plot>;
+  plots: Plots;
   xAxis: Axis;
   yAxis: Axis;
   ticks: Ticks;
 
   constructor() {
     this.fig = new Fig();
-    this.plots = [new Plot()];
+    this.plots = new Plots();
     this.xAxis = new Axis('x', 'x-label sample');
     this.yAxis = new Axis('y', 'y-label sample');
     this.ticks = new Ticks();
   }
 }
-
-const settings = {
-  'fig': {
-    'size-specify': true,
-    'size': [8, 6],
-    'title-specify': true,
-    'title': 'Plot Title',
-    'title-size': 20,
-  },
-  'plot': [
-    {
-      'x': 1,
-      'y': 2,
-      'color': 'black',
-      'line-style': '-',
-      'line-width': 2,
-    },
-  ],
-  'x-axis': {
-    'lim-specify': false,
-    'lim': [0, 1],
-    'log-scale': false,
-    'label': 'x-label sample',
-    'label-size': 15,
-  },
-  'y-axis': {
-    'lim-specify': true,
-    'lim': [0, 1],
-    'log-scale': false,
-    'label': 'y-label sample',
-    'label-size': 15,
-  },
-  'ticks': {
-    'label-size': 15,
-  },
-};
-
-export default settings;

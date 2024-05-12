@@ -10,7 +10,6 @@ const FigureSettings = ({ fig }: { fig: Fig }) => {
 
   const onChangeSpecSize = (event: ChangeEvent<HTMLInputElement>) => {
     setSpecFigSize(event.target.checked);
-    fig.sizeSpecify = event.target.checked;
   };
 
   const setFigureWidth: FocusEventHandler<HTMLInputElement> = event => {
@@ -33,7 +32,6 @@ const FigureSettings = ({ fig }: { fig: Fig }) => {
 
   const onChangeSpecTitle = (event: ChangeEvent<HTMLInputElement>) => {
     setSpecFigTitle(event.target.checked);
-    fig.titleSpecify = event.target.checked;
   };
 
   const setFigureTitle: FocusEventHandler<HTMLInputElement> = event => {
