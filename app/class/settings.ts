@@ -44,11 +44,13 @@ export class Plot {
   }
 }
 
+export type PlotLegendLocation = ('best' | 'upper left' | 'upper right' | 'lower left' | 'lower right');
+
 export class Plots {
   plotList: Array<Plot>;
   legendFlag: boolean;
   legendSize: number;
-  legendLocation: string;
+  legendLocation: PlotLegendLocation;
 
   constructor() {
     this.plotList = [new Plot()];

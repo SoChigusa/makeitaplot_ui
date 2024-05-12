@@ -2,7 +2,7 @@ import { Add, ArrowDownward, ArrowUpward, CheckBox, Delete, ExpandMore } from "@
 import { Accordion, AccordionDetails, AccordionSummary, Box, Checkbox, FormControlLabel, FormGroup, IconButton, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
 import { checkPositiveNumber } from "../utils/alertUtils";
 import { ChangeEvent, FocusEventHandler, MouseEventHandler, useState } from "react";
-import { Plot, PlotColor, PlotLineStyle, PlotLineStyleSpec, Plots } from "../class/settings";
+import { Plot, PlotColor, PlotLegendLocation, PlotLineStyle, PlotLineStyleSpec, Plots } from "../class/settings";
 
 type Props = {
   plot: Plot,
@@ -163,6 +163,7 @@ const PlotSettingsEach = (props: Props) => {
 const PlotSettings = ({ plots }: { plots: Plots }) => {
   const [specPlotList, setSpecPlotList] = useState(plots.plotList);
   const [specLegendFlag, setSpecLegendFlag] = useState(plots.legendFlag);
+  const [specLegendLocation, setSpecLegendLocation] = useState(plots.legendLocation);
 
   // overall plot operations
   const add = () => {
@@ -252,9 +253,11 @@ const PlotSettings = ({ plots }: { plots: Plots }) => {
     });
   };
 
-  const legendLocationList = ['best', 'upper left', 'upper right', 'lower left', 'lower right'];
+  const legendLocationList: PlotLegendLocation[] = ['best', 'upper left', 'upper right', 'lower left', 'lower right'];
   const onChangeLegendLocation = (event: SelectChangeEvent) => {
-    plots.legendLocation = event.target.value;
+    const legendLocation = event.target.value as PlotLegendLocation;
+    plots.legendLocation = legendLocation;
+    setSpecLegendLocation(legendLocation);
   };
 
   return (
@@ -343,12 +346,13 @@ const PlotSettings = ({ plots }: { plots: Plots }) => {
                   size="small"
                   id="plot-legend-location"
                   label="Location"
+                  key="plot-legend-location"
                   disabled={!plots.legendFlag}
-                  value={plots.legendLocation}
+                  value={specLegendLocation}
                   onChange={onChangeLegendLocation}
                 >
                   {
-                    legendLocationList.map((c: string) => (
+                    legendLocationList.map((c: PlotLegendLocation) => (
                       <MenuItem value={c} key={`plot-legend-location-selector-${c}`}>{c}</MenuItem>
                     ))
                   }
