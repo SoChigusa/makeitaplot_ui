@@ -78,6 +78,7 @@ const AxisSettings = ({ axis }: { axis: Axis }) => {
                 sx={{ width: 100 }}
                 size="small"
                 id={`${axis.getID()}-axis-lim-lower`}
+                key={`${axis.getID()}-axis-lim-lower`}
                 label="Lower limit"
                 disabled={!specLim}
                 defaultValue={axis.lim[0]}
@@ -91,6 +92,7 @@ const AxisSettings = ({ axis }: { axis: Axis }) => {
                 sx={{ width: 100 }}
                 size="small"
                 id={`${axis.getID()}-axis-lim-upper`}
+                key={`${axis.getID()}-axis-lim-upper`}
                 label="Upper limit"
                 disabled={!specLim}
                 defaultValue={axis.lim[1]}
@@ -110,6 +112,7 @@ const AxisSettings = ({ axis }: { axis: Axis }) => {
                 sx={{ width: 240 }}
                 size="small"
                 id={`${axis.getID()}-axis-label`}
+                key={`${axis.getID()}-axis-label`}
                 label="Label"
                 defaultValue={axis.label}
                 onBlur={setAxisLabel}
@@ -121,6 +124,7 @@ const AxisSettings = ({ axis }: { axis: Axis }) => {
                 size="small"
                 type="number"
                 id={`${axis.getID()}-axis-label-size`}
+                key={`${axis.getID()}-axis-label-size`}
                 label="Label size"
                 defaultValue={axis.labelSize}
                 onBlur={setAxisLabelSize}

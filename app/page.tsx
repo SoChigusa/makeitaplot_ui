@@ -10,7 +10,7 @@ import TicksSettings from "./components/TicksSettings";
 import { Settings } from "./class/settings";
 import Image from "next/image";
 import ImageIcon from '@mui/icons-material/Image';
-import { CoffeeMaker, CoffeeMakerOutlined, PictureAsPdf } from "@mui/icons-material";
+import { CoffeeMakerOutlined, PictureAsPdf } from "@mui/icons-material";
 
 export default function Home() {
   const inputFileRef = useRef<HTMLInputElement>(null);
@@ -18,7 +18,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   // settings
-  let settings = new Settings();
+  let defaultSettings = new Settings();
+  const [settings, setSettings] = useState(defaultSettings);
 
   const handleClickPlot: MouseEventHandler<HTMLButtonElement> = async (event) => {
     settings.imageType = 'png';
