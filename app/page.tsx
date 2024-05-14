@@ -10,6 +10,7 @@ import TicksSettings from "./components/TicksSettings";
 import { Settings } from "./class/settings";
 import Image from "next/image";
 import ImageIcon from '@mui/icons-material/Image';
+import SourceIcon from '@mui/icons-material/Source';
 import { CoffeeMakerOutlined, PictureAsPdf } from "@mui/icons-material";
 
 export default function Home() {
@@ -37,7 +38,7 @@ export default function Home() {
 
     // File check
     const fileList = inputFileRef.current?.files;
-    if (!fileList) {
+    if (!fileList || fileList.length === 0) {
       throw new Error('No file selected');
     }
 
@@ -95,6 +96,39 @@ export default function Home() {
     setLoading(false);
   };
 
+  const handleSource: MouseEventHandler<HTMLButtonElement> = async (event) => {
+    setLoading(true);
+    event.preventDefault();
+
+    // input file name
+    const formData = new FormData();
+    const fileList = inputFileRef.current?.files;
+    if (!fileList || fileList.length === 0) {
+      throw new Error('No file selected');
+    } else {
+      formData.append('file_name', fileList[0].name);
+    }
+
+    // settings
+    const blob = new Blob([JSON.stringify(settings)], { type: 'application/json' });
+    formData.append('settings', blob);
+
+    // await fetch('http://localhost:3001/source', {
+    await fetch('https://makeitaplot-api.vercel.app/source', {
+      method: 'POST',
+      body: formData
+    }).then(res => res.blob())
+      .then(obj => {
+        const url = URL.createObjectURL(obj);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${fileList[0].name.split('.')[0]}.py`;
+        link.click();
+      });
+
+    setLoading(false);
+  }
+
   return (
     <Box>
       <AppBar position='static' sx={{ marginBottom: 1 }}>
@@ -144,6 +178,13 @@ export default function Home() {
                 onClick={handleClickPDF}
               >
                 <PictureAsPdf />
+              </IconButton>
+              <IconButton
+                aria-label="Download matplotlib source"
+                color="primary"
+                onClick={handleSource}
+              >
+                <SourceIcon />
               </IconButton>
             </Stack>
           </FormControl>

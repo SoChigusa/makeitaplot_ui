@@ -9,6 +9,7 @@ const FigureSettings = ({ fig }: { fig: Fig }) => {
   const [specFigTitle, setSpecFigTitle] = useState<boolean>(fig.titleSpecify)
 
   const onChangeSpecSize = (event: ChangeEvent<HTMLInputElement>) => {
+    fig.sizeSpecify = event.target.checked;
     setSpecFigSize(event.target.checked);
   };
 
@@ -31,6 +32,7 @@ const FigureSettings = ({ fig }: { fig: Fig }) => {
   };
 
   const onChangeSpecTitle = (event: ChangeEvent<HTMLInputElement>) => {
+    fig.titleSpecify = event.target.checked;
     setSpecFigTitle(event.target.checked);
   };
 
