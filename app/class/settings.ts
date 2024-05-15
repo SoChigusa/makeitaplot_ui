@@ -62,15 +62,17 @@ export class Plots {
   }
 }
 
+export type AxisID = 'x' | 'y';
+
 export class Axis {
-  id: string;
+  id: AxisID;
   limSpecify: boolean;
   lim: [number, number];
   logScale: boolean;
   label: string;
   labelSize: number;
 
-  constructor(i: string, l: string) {
+  constructor(i: AxisID, l: string) {
     this.id = i;
     this.limSpecify = true;
     this.lim = [0, 1];

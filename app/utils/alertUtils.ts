@@ -1,8 +1,9 @@
 import { FocusEvent } from "react";
 
-type CheckNumberProps = { event: FocusEvent<HTMLInputElement>, type: string, vCurrent: number, label: string };
+type NumberType = 'float' | 'int';
+type CheckNumberProps = { event: FocusEvent<HTMLInputElement>, type: NumberType, vCurrent: number, label: string };
 
-const parseNumber = (value: string, type: string) => {
+const parseNumber = (value: string, type: NumberType) => {
   if (type == 'float') {
     return parseFloat(value);
   } else if (type == 'int') {
