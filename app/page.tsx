@@ -2,7 +2,7 @@
 
 import { useState, useRef, MouseEventHandler } from "react";
 // import type { PutBlobResult } from "@vercel/blob";
-import { AppBar, Backdrop, Box, Button, CircularProgress, Container, FormControl, IconButton, Input, Stack, Toolbar, Typography } from "@mui/material";
+import { Alert, AppBar, Backdrop, Box, CircularProgress, Container, FormControl, IconButton, Input, Slide, SlideProps, Snackbar, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
 import FigureSettings from "./components/FigureSettings";
 import PlotSettings from "./components/PlotSettings";
 import AxisSettings from "./components/AxisSettings";
@@ -17,6 +17,10 @@ export default function Home() {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState({
+    open: false,
+    message: ""
+  });
 
   // settings
   let defaultSettings = new Settings();
@@ -25,6 +29,26 @@ export default function Home() {
   const handleClickPlot: MouseEventHandler<HTMLButtonElement> = async (event) => {
     settings.imageType = 'png';
     handlePlot(event);
+  };
+
+  const handleClickPNG: MouseEventHandler<HTMLButtonElement> = async (event) => {
+    const fileList = inputFileRef.current?.files;
+    if (!fileList || fileList.length === 0) {
+      setError({
+        open: true,
+        message: 'No file selected'
+      });
+    } else if (imageUrl === '') {
+      setError({
+        open: true,
+        message: 'No plot generated'
+      });
+    } else {
+      const link = document.createElement("a");
+      link.href = imageUrl;
+      link.download = fileList[0].name.split('.')[0] + '.png';
+      link.click();
+    }
   };
 
   const handleClickPDF: MouseEventHandler<HTMLButtonElement> = async (event) => {
@@ -39,7 +63,12 @@ export default function Home() {
     // File check
     const fileList = inputFileRef.current?.files;
     if (!fileList || fileList.length === 0) {
-      throw new Error('No file selected');
+      setError({
+        open: true,
+        message: 'No file selected'
+      });
+      setLoading(false);
+      return;
     }
 
     // --------------- source code for vercel blob ---------------
@@ -88,7 +117,7 @@ export default function Home() {
         } else if (settings.imageType === 'pdf') {
           const link = document.createElement("a");
           link.href = url;
-          link.download = url.split('/').slice(-1)[0];
+          link.download = fileList[0].name.split('.')[0] + '.pdf';
           link.click();
         }
       });
@@ -104,7 +133,12 @@ export default function Home() {
     const formData = new FormData();
     const fileList = inputFileRef.current?.files;
     if (!fileList || fileList.length === 0) {
-      throw new Error('No file selected');
+      setError({
+        open: true,
+        message: 'No file selected'
+      });
+      setLoading(false);
+      return;
     } else {
       formData.append('file_name', fileList[0].name);
     }
@@ -128,6 +162,21 @@ export default function Home() {
 
     setLoading(false);
   }
+
+  // error snackbar
+  const SlideTransition = (props: SlideProps) => {
+    return <Slide {...props} direction="up" />;
+  };
+
+  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setError({
+      open: false,
+      message: ''
+    });
+  };
 
   return (
     <Box>
@@ -157,35 +206,42 @@ export default function Home() {
                 type="file"
                 required
               />
-              <IconButton
-                aria-label="Plot"
-                color="primary"
-                onClick={handleClickPlot}
-              >
-                <CoffeeMakerOutlined />
-              </IconButton>
-              <IconButton
-                aria-label="Download png"
-                color="primary"
-                href={imageUrl}
-                download
-              >
-                <ImageIcon />
-              </IconButton>
-              <IconButton
-                aria-label="Generate and download pdf"
-                color="primary"
-                onClick={handleClickPDF}
-              >
-                <PictureAsPdf />
-              </IconButton>
-              <IconButton
-                aria-label="Download matplotlib source"
-                color="primary"
-                onClick={handleSource}
-              >
-                <SourceIcon />
-              </IconButton>
+              <Tooltip title="Plot" arrow>
+                <IconButton
+                  aria-label="Plot"
+                  color="primary"
+                  onClick={handleClickPlot}
+                >
+                  <CoffeeMakerOutlined />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Download png image" arrow>
+                <IconButton
+                  aria-label="Download png"
+                  color="primary"
+                  onClick={handleClickPNG}
+                >
+                  <ImageIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Download pdf image" arrow>
+                <IconButton
+                  aria-label="Generate and download pdf"
+                  color="primary"
+                  onClick={handleClickPDF}
+                >
+                  <PictureAsPdf />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Download matplotlib source" arrow>
+                <IconButton
+                  aria-label="Download matplotlib source"
+                  color="primary"
+                  onClick={handleSource}
+                >
+                  <SourceIcon />
+                </IconButton>
+              </Tooltip>
             </Stack>
           </FormControl>
           <Box>
@@ -195,6 +251,7 @@ export default function Home() {
             <AxisSettings axis={settings.yAxis} />
             <TicksSettings ticks={settings.ticks} />
           </Box>
+          <Box></Box>
         </Stack>
         <Backdrop
           sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
@@ -202,6 +259,22 @@ export default function Home() {
         >
           <CircularProgress />
         </Backdrop>
+        <Snackbar
+          open={error.open}
+          onClose={handleCloseSnackbar}
+          TransitionComponent={SlideTransition}
+          key="error-snackbar"
+          autoHideDuration={3000}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity="error"
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            {error.message}
+          </Alert>
+        </Snackbar>
       </Container>
     </Box>
   );

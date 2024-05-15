@@ -1,6 +1,6 @@
 import { Add, ArrowDownward, ArrowUpward, CheckBox, Delete, ExpandMore } from "@mui/icons-material";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Checkbox, FormControlLabel, FormGroup, IconButton, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from "@mui/material";
-import { checkPositiveNumber } from "../utils/alertUtils";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Checkbox, FormControlLabel, FormGroup, IconButton, MenuItem, Select, SelectChangeEvent, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { checkNonnegativeNumber, checkPositiveNumber } from "../utils/alertUtils";
 import { ChangeEvent, FocusEventHandler, MouseEventHandler, useState } from "react";
 import { Plot, PlotColor, PlotLegendLocation, PlotLineStyle, PlotLineStyleSpec, Plots } from "../class/settings";
 
@@ -171,6 +171,15 @@ const PlotSettings = ({ plots }: { plots: Plots }) => {
   const [specLegendLocation, setSpecLegendLocation] = useState(plots.legendLocation);
 
   // overall plot operations
+  const setSkiprows: FocusEventHandler<HTMLInputElement> = event => {
+    plots.skiprows = checkNonnegativeNumber({
+      event,
+      type: 'int',
+      vCurrent: plots.skiprows,
+      label: 'Skiprows'
+    });
+  };
+
   const add = () => {
     const plot = new Plot();
     const updatedPlotList = [...specPlotList];
@@ -254,7 +263,7 @@ const PlotSettings = ({ plots }: { plots: Plots }) => {
       event,
       type: 'int',
       vCurrent: plots.legendSize,
-      label: 'Plot x'
+      label: 'Plot legend size'
     });
   };
 
@@ -277,14 +286,27 @@ const PlotSettings = ({ plots }: { plots: Plots }) => {
       <AccordionDetails>
         <FormGroup>
           <Stack spacing={2}>
-            <Box>
-              <IconButton
-                aria-label="Add plot"
-                onClick={() => { add(); }}
-              >
-                <Add />
-              </IconButton>
-            </Box>
+            <Stack spacing={2} direction="row">
+              <Tooltip title="Add new plot" arrow>
+                <IconButton
+                  aria-label="Add plot"
+                  onClick={() => { add(); }}
+                >
+                  <Add />
+                </IconButton>
+              </Tooltip>
+              <TextField
+                required
+                sx={{ width: 100 }}
+                InputProps={{ inputProps: { min: 0 } }}
+                size="small"
+                type="number"
+                id="plot-skiprows"
+                label="Skiprows"
+                defaultValue={plots.skiprows}
+                onBlur={setSkiprows}
+              />
+            </Stack>
             {
               specPlotList.map((plot, index) => (
                 <Stack key={`plot-settings-${index}`} spacing={1} direction="row">
@@ -300,27 +322,33 @@ const PlotSettings = ({ plots }: { plots: Plots }) => {
                     handleChangePlotLegend={(legend: string) => onChangePlotLegend(index, legend)}
                   />
                   <Stack spacing={0} direction="row">
-                    <IconButton
-                      aria-label="Move upward"
-                      disabled={index == 0}
-                      onClick={() => { moveUpward(index); }}
-                    >
-                      <ArrowUpward />
-                    </IconButton>
-                    <IconButton
-                      aria-label="Move downward"
-                      disabled={index == specPlotList.length - 1}
-                      onClick={() => { moveDownward(index); }}
-                    >
-                      <ArrowDownward />
-                    </IconButton>
-                    <IconButton
-                      aria-label="Delete"
-                      disabled={specPlotList.length == 1}
-                      onClick={() => { deletePlot(index); }}
-                    >
-                      <Delete />
-                    </IconButton>
+                    <Tooltip title="Move upward" arrow>
+                      <IconButton
+                        aria-label="Move upward"
+                        disabled={index == 0}
+                        onClick={() => { moveUpward(index); }}
+                      >
+                        <ArrowUpward />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Move downward" arrow>
+                      <IconButton
+                        aria-label="Move downward"
+                        disabled={index == specPlotList.length - 1}
+                        onClick={() => { moveDownward(index); }}
+                      >
+                        <ArrowDownward />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete" arrow>
+                      <IconButton
+                        aria-label="Delete"
+                        disabled={specPlotList.length == 1}
+                        onClick={() => { deletePlot(index); }}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Tooltip>
                   </Stack>
                 </Stack>
               ))

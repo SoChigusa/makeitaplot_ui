@@ -47,12 +47,14 @@ export class Plot {
 export type PlotLegendLocation = ('best' | 'upper left' | 'upper right' | 'lower left' | 'lower right');
 
 export class Plots {
+  skiprows: number;
   plotList: Array<Plot>;
   legendFlag: boolean;
   legendSize: number;
   legendLocation: PlotLegendLocation;
 
   constructor() {
+    this.skiprows = 0;
     this.plotList = [new Plot()];
     this.legendFlag = false;
     this.legendSize = 15;
