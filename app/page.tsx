@@ -105,22 +105,46 @@ export default function Home() {
     const blob = new Blob([JSON.stringify(settings)], { type: 'application/json' });
     formData.append('settings', blob);
 
-    // await fetch('http://localhost:3001/plot', {
-    await fetch('https://makeitaplot-api.vercel.app/plot', {
-      method: 'POST',
-      body: formData
-    }).then(res => res.blob())
-      .then(obj => {
-        const url = URL.createObjectURL(obj);
-        if (settings.imageType === 'png') {
-          setImageUrl(url);
-        } else if (settings.imageType === 'pdf') {
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = fileList[0].name.split('.')[0] + '.pdf';
-          link.click();
-        }
-      });
+    try {
+      await fetch('http://localhost:3001/plot', {
+        // await fetch('https://makeitaplot-api.vercel.app/plot', {
+        method: 'POST',
+        body: formData
+      }).then(res => res.blob())
+        .then(obj => {
+          const url = URL.createObjectURL(obj);
+          if (settings.imageType === 'png') {
+            setImageUrl(url);
+          } else if (settings.imageType === 'pdf') {
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = fileList[0].name.split('.')[0] + '.pdf';
+            link.click();
+          }
+        });
+    } catch (error: any) {
+      console.log(error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setError({
+          open: true,
+          message: 'Error response:' + error.response.data.error
+        });
+      } else if (error.request) {
+        // The request was made but no response was received
+        setError({
+          open: true,
+          message: 'No response received from the server'
+        });
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setError({
+          open: true,
+          message: 'Error in setting up the request'
+        });
+      }
+    }
 
     setLoading(false);
   };
